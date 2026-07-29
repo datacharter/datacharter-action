@@ -1,0 +1,45 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  passes:
+    name: "demo workspace: tests + drift pass"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./
+        with:
+          workspace: demo
+          run-drift: "true"
+
+  pinned-version:
+    name: "pinned datacharter version"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./
+        with:
+          workspace: demo
+          version: "0.10.4"
+
+  fails-when-tests-fail:
+    name: "failing assertion fails the job"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - id: should-fail
+        uses: ./
+        continue-on-error: true
+        with:
+          workspace: demo-fail
+      - name: Assert the action failed
+        shell: bash
+        run: |
+          if [ "${{ steps.should-fail.outcome }}" != "failure" ]; then
+            echo "Expected the action to fail on demo-fail, got: ${{ steps.should-fail.outcome }}"
+            exit 1
+          fi
+          echo "Correctly failed on a failing assertion."

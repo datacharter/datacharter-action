@@ -1,0 +1,4 @@
+# workspace runtime state — only the schema baseline is committed
+demo/.datacharter/*
+!demo/.datacharter/schema.json
+demo-fail/.datacharter/

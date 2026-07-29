@@ -1,0 +1,7 @@
+version: 1
+sources:
+  store:
+    type: csv
+    path: data/orders.csv
+tests:
+  region_valid: { type: accepted_values, relation: store, column: region, values: [US, EU] }

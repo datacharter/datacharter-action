@@ -1,0 +1,11 @@
+version: 1
+sources:
+  store:
+    type: csv
+    path: data/orders.csv
+tests:
+  id_not_null:   { type: not_null, relation: store, column: id }
+  id_unique:     { type: unique, relation: store, columns: [id] }
+  region_valid:  { type: accepted_values, relation: store, column: region, values: [US, EU, APAC] }
+  has_rows:      { type: row_count, relation: store, min: 1 }
+  amount_nonneg: { type: expression, relation: store, expression: "amount >= 0" }

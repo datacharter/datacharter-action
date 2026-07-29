@@ -1,0 +1,7 @@
+{
+  "store": {
+    "amount": "DOUBLE",
+    "id": "BIGINT",
+    "region": "VARCHAR"
+  }
+}

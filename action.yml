@@ -1,0 +1,79 @@
+name: "DataCharter data checks"
+description: "Contract-governed data quality in CI: run charter.yaml data assertions and schema/PII drift checks, and fail the PR when they fail."
+author: "Rishi Mashelkar"
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  workspace:
+    description: "Path to the DataCharter workspace (the directory containing charter.yaml)."
+    required: false
+    default: "."
+  version:
+    description: "datacharter version to run (e.g. 0.10.4). Default: latest from PyPI."
+    required: false
+    default: ""
+  run-tests:
+    description: "Run the data assertions declared under tests: in charter.yaml."
+    required: false
+    default: "true"
+  run-drift:
+    description: "Run the schema/PII drift check against the committed .datacharter/schema.json baseline."
+    required: false
+    default: "false"
+  select:
+    description: "Run a single test by name (passed to datacharter test --select)."
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+    - name: Run data tests
+      if: ${{ inputs.run-tests == 'true' }}
+      shell: bash
+      env:
+        DC_WORKSPACE: ${{ inputs.workspace }}
+        DC_VERSION: ${{ inputs.version }}
+        DC_SELECT: ${{ inputs.select }}
+      run: |
+        set -o pipefail
+        pkg="datacharter"
+        if [ -n "$DC_VERSION" ]; then pkg="datacharter@$DC_VERSION"; fi
+        args=()
+        if [ -n "$DC_SELECT" ]; then args+=(--select "$DC_SELECT"); fi
+        status=0
+        uvx "$pkg" test "$DC_WORKSPACE" "${args[@]}" 2>&1 | tee /tmp/datacharter-test.out || status=$?
+        {
+          echo "### DataCharter data tests"
+          echo ""
+          echo '```'
+          cat /tmp/datacharter-test.out
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+        exit "$status"
+
+    - name: Check schema drift
+      if: ${{ inputs.run-drift == 'true' }}
+      shell: bash
+      env:
+        DC_WORKSPACE: ${{ inputs.workspace }}
+        DC_VERSION: ${{ inputs.version }}
+      run: |
+        set -o pipefail
+        pkg="datacharter"
+        if [ -n "$DC_VERSION" ]; then pkg="datacharter@$DC_VERSION"; fi
+        status=0
+        uvx "$pkg" drift "$DC_WORKSPACE" 2>&1 | tee /tmp/datacharter-drift.out || status=$?
+        {
+          echo "### DataCharter schema drift"
+          echo ""
+          echo '```'
+          cat /tmp/datacharter-drift.out
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+        exit "$status"
