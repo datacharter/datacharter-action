@@ -1,5 +1,5 @@
 name: "DataCharter data checks"
-description: "Contract-governed data quality in CI: run charter.yaml data assertions and schema/PII drift checks, and fail the PR when they fail."
+description: "Contract-governed data quality in CI: run charter.yaml assertions and schema/PII drift checks that fail the PR."
 author: "Rishi Mashelkar"
 branding:
   icon: shield
