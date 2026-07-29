@@ -1,5 +1,8 @@
 # DataCharter data checks — GitHub Action
 
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-DataCharter%20data%20checks-3B82C4?logo=github)](https://github.com/marketplace/actions/datacharter-data-checks)
+[![test](https://github.com/datacharter/datacharter-action/actions/workflows/test.yml/badge.svg)](https://github.com/datacharter/datacharter-action/actions/workflows/test.yml)
+
 Run **contract-governed data quality checks** in CI. This action runs
 [DataCharter](https://github.com/datacharter/datacharter)'s
 [`test`](https://datacharter.dev/cli.html) (data assertions declared in your
